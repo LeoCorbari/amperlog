@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amperlog</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.2/vanilla-tilt.min.js"></script>
+
+  <!-- Favicon em SVG direto no link, cor definida para #9f7aea -->
+  <link rel="icon" href="data:image/svg+xml;utf8,
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%239f7aea'>
+  <path d='M6 3a3 3 0 0 0-3 3v2.25a3 3 0 0 0 3 3h2.25a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3H6ZM15.75 3a3 3 0 0 0-3 3v2.25a3 3 0 0 0 3 3H18a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3h-2.25ZM6 12.75a3 3 0 0 0-3 3V18a3 3 0 0 0 3 3h2.25a3 3 0 0 0 3-3v-2.25a3 3 0 0 0-3-3H6ZM17.625 13.5a.75.75 0 0 0-1.5 0v2.625H13.5a.75.75 0 0 0 0 1.5h2.625v2.625a.75.75 0 0 0 1.5 0v-2.625h2.625a.75.75 0 0 0 0-1.5h-2.625V13.5Z' />
+</svg>">
+
+
+  <!-- Custom styles for animations -->
+  <style>
+    @keyframes animate-pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: .8;
+        /* Reduz a opacidade para 80% no meio da animação */
+      }
+    }
+
+    .animate-pulse {
+      animation: animate-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @keyframes slideDownFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-24px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .event-card {
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    .modal-slide {
+      animation: slideDownFadeIn 0.3s ease forwards;
+    }
+
+    .card-border-ocorrendo {
+      border-left-color: #ef4444;
+    }
+
+    .card-border-resolvido {
+      border-left-color: #10b981;
+    }
+
+    .status-badge-ocorrendo {
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .status-badge-resolvido {
+      background-color: #d1fae5;
+      color: #047857;
+    }
+
+    /* Remover outline em elementos clicáveis ao focar */
+    button:focus,
+    a:focus,
+    input:focus,
+    textarea:focus {
+      outline: none !important;
+      box-shadow: none !important;
+      /* Para remover sombras de foco também */
+      --tw-ring-color: transparent !important;
+      /* Para remover anéis do Tailwind */
+      --tw-ring-offset-shadow: 0 0 #0000 !important;
+      --tw-ring-shadow: 0 0 #0000 !important;
+    }
+
+
+    /* Animação para os três pontos */
+    @keyframes ellipsis {
+      0% {
+        content: "";
+      }
+
+      33% {
+        content: ".";
+      }
+
+      66% {
+        content: "..";
+      }
+
+      100% {
+        content: "...";
+      }
+    }
+
+    .event-card .status-badge-ocorrendo::after {
+      content: "";
+      /* Inicia vazio */
+      display: inline-block;
+      vertical-align: bottom;
+      /* Alinha os pontos com o texto */
+      overflow: hidden;
+      width: 0.75em;
+      /* Largura para os 3 pontos */
+      animation: ellipsis 1.5s infinite steps(4);
+      /* 4 passos para 0, ., .., ... */
+    }
+
+
+    /* Dark Mode Styles */
+    body.dark-mode {
+      background-color: #1a202c;
+      /* Dark background */
+      color: #e2e8f0;
+      /* Light text */
+    }
+
+    body.dark-mode .text-gray-800 {
+      color: #e2e8f0;
+    }
+
+    body.dark-mode .text-gray-600 {
+      color: #cbd5e0;
+    }
+
+    body.dark-mode .text-gray-500 {
+      color: #a0aec0;
+    }
+
+    body.dark-mode .bg-white {
+      background-color: #2d3748;
+      /* Darker card background */
+    }
+
+    body.dark-mode .shadow-md {
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.18);
+    }
+
+    body.dark-mode .border-gray-300 {
+      border-color: #4a5568;
+    }
+
+    body.dark-mode input,
+    body.dark-mode textarea {
+      background-color: #4a5568;
+      color: #e2e8f0;
+      border-color: #4a5568;
+    }
+
+    body.dark-mode input::placeholder,
+    body.dark-mode textarea::placeholder {
+      color: #a0aec0;
+    }
+
+    body.dark-mode .focus\:ring-indigo-500:focus {
+      --tw-ring-color: #667eea;
+    }
+
+    body.dark-mode .focus\:border-indigo-500:focus {
+      border-color: #667eea;
+    }
+
+    body.dark-mode .bg-gray-200 {
+      background-color: #4a5568;
+    }
+
+    body.dark-mode .text-gray-800 {
+      color: #e2e8f0;
+    }
+
+    body.dark-mode .hover\:bg-gray-300:hover {
+      background-color: #667eea;
+    }
+
+    body.dark-mode .bg-black {
+      background-color: rgba(0, 0, 0, 0.7);
+      /* Darker overlay */
+    }
+
+    body.dark-mode .text-indigo-600 {
+      color: #9f7aea;
+      /* Lighter indigo for dark mode */
+    }
+
+    body.dark-mode .hover\:text-indigo-600:hover {
+      color: #9f7aea;
+    }
+
+    body.dark-mode .bg-indigo-600 {
+      background-color: #7f9cf5;
+      /* Lighter indigo for dark mode */
+    }
+
+    body.dark-mode .hover\:bg-indigo-700:hover {
+      background-color: #667eea;
+    }
+
+    body.dark-mode .bg-red-50 {
+      background-color: #4a2020;
+      /* Darker red for occurring events */
+    }
+
+    body.dark-mode .bg-green-50 {
+      background-color: #2a4365;
+      /* Darker green for resolved events */
+    }
+
+    body.dark-mode .status-badge-ocorrendo {
+      background-color: #7f1d1d;
+      color: #fca5a5;
+    }
+
+    body.dark-mode .status-badge-resolvido {
+      background-color: #166534;
+      color: #a7f3d0;
+    }
+
+    body.dark-mode .hover\:bg-green-100:hover {
+      background-color: #2f855a;
+    }
+
+    body.dark-mode .hover\:text-green-800:hover {
+      color: #a7f3d0;
+    }
+
+    body.dark-mode .hover\:bg-gray-100:hover {
+      background-color: #4a5568;
+    }
+
+    body.dark-mode .divide-gray-200>:not([hidden])~:not([hidden]) {
+      border-color: #4a5568;
+    }
+
+    body.dark-mode .hover\:bg-indigo-50:hover {
+      background-color: #434190;
+    }
+
+    /* New: Presentation Mode Styles */
+    body.presentation-mode #fab-container,
+    body.presentation-mode .main-header-content {
+      display: none !important;
+    }
+
+    /* Toast Notification Styles (UPDATED) */
+    #toast-container {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .toast {
+      /* Base styles for all toasts */
+      width: 100%;
+      max-width: 350px;
+      padding: 1rem;
+      /* Adjusted padding */
+      border-radius: 0.5rem;
+      /* More rounded corners */
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      /* Tailwind shadow-md */
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      /* Space between icon and text */
+      background-color: white;
+      /* Default background */
+      color: #4b5563;
+      /* Default text color (gray-700) */
+      border: 1px solid #e5e7eb;
+      /* Light border */
+    }
+
+    body.dark-mode .toast {
+      background-color: #1f2937;
+      /* Darker background for toasts in dark mode */
+      color: #d1d5db;
+      /* Lighter text color */
+      border-color: #374151;
+      /* Darker border */
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast.hide {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+
+    .toast-icon-container {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 2rem;
+      /* w-8 */
+      height: 2rem;
+      /* h-8 */
+      border-radius: 0.5rem;
+      /* rounded-lg */
+    }
+
+    .toast-message {
+      flex-grow: 1;
+      font-size: 0.875rem;
+      /* text-sm */
+      font-weight: 400;
+      /* font-normal */
+    }
+
+    .toast-close-button {
+      margin-left: auto;
+      /* ms-auto */
+      margin-right: -0.375rem;
+      /* -mx-1.5 */
+      margin-top: -0.375rem;
+      /* -my-1.5 */
+      background-color: transparent;
+      /* bg-white */
+      color: #9ca3af;
+      /* text-gray-400 */
+      border-radius: 0.5rem;
+      /* rounded-lg */
+      padding: 0.375rem;
+      /* p-1.5 */
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 2rem;
+      /* h-8 */
+      width: 2rem;
+      /* w-8 */
+      transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+    }
+
+    .toast-close-button:hover {
+      color: #111827;
+      /* hover:text-gray-900 */
+      background-color: #f3f4f6;
+      /* hover:bg-gray-100 */
+    }
+
+    body.dark-mode .toast-close-button {
+      background-color: transparent;
+      /* dark:bg-gray-800 */
+      color: #6b7280;
+      /* dark:text-gray-500 */
+    }
+
+    body.dark-mode .toast-close-button:hover {
+      color: white;
+      /* dark:hover:text-white */
+      background-color: #374151;
+      /* dark:hover:bg-gray-700 */
+    }
+
+    /* Contextual Toast Styles */
+    .toast-success .toast-icon-container {
+      background-color: #d1fae5;
+      /* green-100 */
+      color: #10b981;
+      /* green-500 */
+    }
+
+    body.dark-mode .toast-success .toast-icon-container {
+      background-color: #14532d;
+      /* dark:bg-green-800 */
+      color: #a7f3d0;
+      /* dark:text-green-200 */
+    }
+
+    .toast-error .toast-icon-container {
+      background-color: #fee2e2;
+      /* red-100 */
+      color: #ef4444;
+      /* red-500 */
+    }
+
+    body.dark-mode .toast-error .toast-icon-container {
+      background-color: #7f1d1d;
+      /* dark:bg-red-800 */
+      color: #fca5a5;
+      /* dark:text-red-200 */
+    }
+
+    .toast-warning .toast-icon-container {
+      background-color: #fffbeb;
+      /* orange-100 */
+      color: #f97316;
+      /* orange-500 */
+    }
+
+    body.dark-mode .toast-warning .toast-icon-container {
+      background-color: #9a3412;
+      /* dark:bg-orange-700 */
+      color: #fdba74;
+      /* dark:text-orange-200 */
+    }
+
+    .toast-info .toast-icon-container {
+      background-color: #dbeafe;
+      /* blue-100 */
+      color: #3b82f6;
+      /* blue-500 */
+    }
+
+    body.dark-mode .toast-info .toast-icon-container {
+      background-color: #1e40af;
+      /* dark:bg-blue-800 */
+      color: #bfdbfe;
+      /* dark:text-blue-200 */
+    }
+
+    /* Estilos para desabilitar os FABs quando um modal está aberto */
+    body.modal-open #fab-container {
+      opacity: 0.5; /* Reduz a opacidade para dar a impressão de desabilitado */
+      pointer-events: none; /* Impede qualquer interação com o mouse */
+      transition: opacity 0.3s ease-in-out; /* Adiciona uma transição suave */
+      z-index: 30; /* NOVO: Define um z-index menor que o do modal (40) */
+    }
+    
+  </style>
+
+  <!-- Custom Tailwind config -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'ocorrendo': '#ef4444',
+            'resolvido': '#10b981',
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-gray-50 font-sans flex flex-col items-center py-6 px-4 min-h-screen relative">
+
+  <!-- Splash Screen -->
+  <div id="splash-screen"
+    class="fixed inset-0 bg-indigo-600 flex flex-col items-center justify-center z-50 opacity-100 transition-opacity duration-1000 ease-out">
+    <div class="flex">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+        class="size-12 text-white animate-pulse">
+        <path
+          d="M6 3a3 3 0 0 0-3 3v2.25a3 3 0 0 0 3 3h2.25a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3H6ZM15.75 3a3 3 0 0 0-3 3v2.25a3 3 0 0 0 3 3H18a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3h-2.25ZM6 12.75a3 3 0 0 0-3 3V18a3 3 0 0 0 3 3h2.25a3 3 0 0 0 3-3v-2.25a3 3 0 0 0-3-3H6ZM17.625 13.5a.75.75 0 0 0-1.5 0v2.625H13.5a.75.75 0 0 0 0 1.5h2.625v2.625a.75.75 0 0 0 1.5 0v-2.625h2.625a.75.75 0 0 0 0-1.5h-2.625V13.5Z" />
+      </svg>
+
+      <h1 class="text-6xl font-bold text-white mb-4 animate-pulse select-none">Amperlog</h1>
+    </div>
+    <p class="text-xl text-white">Desenvolvido por Leo Corbari</p>
+  </div>
+
+  <!-- Main Header Content (Title and Theme Toggle) -->
+  <div class="main-header-content w-full flex justify-between items-center mb-8 px-4">
+    <div class="flex items-center">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+        class="size-8 font-bold text-indigo-600">
+        <path
+          d="M6 3a3 3 0 0 0-3 3v2.25a3 3 0 0 0 3 3h2.25a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3H6ZM15.75 3a3 3 0 0 0-3 3v2.25a3 3 0 0 0 3 3H18a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3h-2.25ZM6 12.75a3 3 0 0 0-3 3V18a3 3 0 0 0 3 3h2.25a3 3 0 0 0 3-3v-2.25a3 3 0 0 0-3-3H6ZM17.625 13.5a.75.75 0 0 0-1.5 0v2.625H13.5a.75.75 0 0 0 0 1.5h2.625v2.625a.75.75 0 0 0 1.5 0v-2.625h2.625a.75.75 0 0 0 0-1.5h-2.625V13.5Z" />
+      </svg>
+      <h1 class="text-4xl font-bold text-indigo-600 select-none">Amperlog</h1>
+    </div>
+
+    <!-- Dark Mode Toggle Button -->
+    <button id="theme-toggle"
+      class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-full shadow-lg flex items-center justify-center text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+      aria-label="Alternar tema claro/escuro" title="Alternar tema claro/escuro">
+      <span class="material-icons sun-icon">light_mode</span>
+      <span class="material-icons moon-icon hidden">dark_mode</span>
+    </button>
+  </div>
+
+  <!-- Event List -->
+  <section id="event-list" aria-live="polite" aria-relevant="additions removals" aria-label="Lista de eventos"
+    class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- Events will be inserted here -->
+  </section>
+
+  <!-- Floating Action Buttons -->
+  <div id="fab-container" class="fixed bottom-6 right-6 z-50 flex flex-col space-y-4">
+    <button id="fab-add"
+      class="w-14 h-14 bg-indigo-600 rounded-full shadow-lg flex items-center justify-center text-white hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+      aria-label="Adicionar novo evento" title="Adicionar novo evento">
+      <span class="material-icons text-3xl">add</span>
+    </button>
+    <button id="fab-history"
+      class="w-14 h-14 bg-indigo-600 rounded-full shadow-lg flex items-center justify-center text-white hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+      aria-label="Visualizar histórico de eventos" title="Visualizar histórico de eventos">
+      <span class="material-icons text-3xl">history</span>
+    </button>
+  </div>
+
+  <!-- Add Event Modal -->
+  <div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 z-40 hidden">
+    <div id="modal" class="bg-white rounded-xl shadow-xl w-full max-w-2xl p-8 modal-slide">
+      <h2 id="modal-title" class="text-2xl font-bold text-indigo-600 mb-6">Adicionar Novo Evento</h2>
+      <form id="event-form" class="space-y-5" novalidate>
+        <div>
+          <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Título do Evento</label>
+          <input type="text" id="title" name="title" required aria-required="true" placeholder="Ex: Rompimento de fibra"
+            autocomplete="off"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+        <div>
+          <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+          <textarea id="description" name="description" rows="3" placeholder="Ex: Previsão"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+        </div>
+        <div>
+          <label for="start-time" class="block text-sm font-medium text-gray-700 mb-1">Início</label>
+          <input type="datetime-local" id="start-time" name="start-time" required aria-required="true"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+        <div class="flex justify-end space-x-3 pt-2">
+          <button type="button" id="btn-cancel"
+            class="px-4 py-2 bg-gray-200 text-gray-800 font-medium rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+            Cancelar
+          </button>
+          <button type="submit"
+            class="px-4 py-2 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+            Adicionar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- History Modal -->
+  <div id="modal-history-overlay"
+    class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 z-40 hidden">
+    <div id="modal-history"
+      class="bg-white rounded-xl shadow-xl w-full max-w-6xl p-8 modal-slide relative flex flex-col">
+      <!-- Adicionado flex flex-col -->
+      <div class="flex justify-between items-start mb-6">
+        <h2 id="modal-history-title" class="text-2xl font-bold text-indigo-600">Histórico de Eventos</h2>
+        <button id="btn-close-history"
+          class="text-gray-400 hover:text-indigo-600 text-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-full p-1"
+          aria-label="Fechar histórico de eventos" title="Fechar histórico de eventos">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <input type="text" id="history-search" placeholder="Pesquisar eventos pelo título, descrição, data ou status"
+        aria-label="Pesquisar eventos" autocomplete="off"
+        class="w-full px-3 py-2 mb-6 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+
+      <!-- A div abaixo agora terá o scroll e a altura máxima -->
+      <div class="overflow-y-auto flex-grow" style="max-height: calc(90vh - 200px);">
+        <!-- Ajustado max-height e adicionado flex-grow -->
+        <table id="history-table" class="min-w-full text-sm" aria-describedby="modal-history-description">
+          <thead class="bg-indigo-600 text-white sticky top-0 z-10">
+            <!-- Adicionado sticky top-0 z-10 para cabeçalho fixo -->
+            <tr>
+              <th scope="col" class="py-3 px-4 text-left font-medium rounded-tl-lg">Título</th>
+              <th scope="col" class="py-3 px-4 text-left font-medium">Descrição</th>
+              <th scope="col" class="py-3 px-4 text-left font-medium">Início</th>
+              <th scope="col" class="py-3 px-4 text-left font-medium">Fim</th>
+              <th scope="col" class="py-3 px-4 text-left font-medium">Duração</th>
+              <th scope="col" class="py-3 px-4 text-left font-medium rounded-tr-lg">Status</th>
+            </tr>
+          </thead>
+          <tbody id="history-table-body" class="divide-y divide-gray-200">
+            <!-- History rows will be inserted here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Context Menu -->
+  <div id="context-menu"
+    class="hidden fixed bg-white border border-gray-200 rounded-lg shadow-lg z-50 py-1 min-w-[200px]">
+    <ul>
+      <li id="context-menu-show" class="px-4 py-2 hover:bg-gray-100 cursor-pointer">Mostrar na tela principal</li>
+      <li id="context-menu-hide" class="px-4 py-2 hover:bg-gray-100 cursor-pointer">Ocultar</li>
+    </ul>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <script src="https://cdn.socket.io/4.6.1/socket.io.min.js" crossorigin="anonymous"></script>
+  <script>
+    const API_BASE = "http://192.168.54.120:3000";
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const splashScreen = document.getElementById('splash-screen');
+      const fabAdd = document.getElementById('fab-add');
+      const fabHistory = document.getElementById('fab-history');
+      const modalOverlay = document.getElementById('modal-overlay');
+      const modal = document.getElementById('modal');
+      const form = document.getElementById('event-form');
+      const eventList = document.getElementById('event-list');
+      const btnCancel = document.getElementById('btn-cancel');
+      const inputTitle = document.getElementById('title');
+      const inputDescription = document.getElementById('description');
+      const inputStart = document.getElementById('start-time');
+
+      const modalHistoryOverlay = document.getElementById('modal-history-overlay');
+      const modalHistory = document.getElementById('modal-history');
+      const historyTableBody = document.getElementById('history-table-body');
+      const btnCloseHistory = document.getElementById('btn-close-history');
+      const historySearchInput = document.getElementById('history-search');
+
+      const contextMenu = document.getElementById('context-menu');
+      const contextMenuShow = document.getElementById('context-menu-show');
+      const contextMenuHide = document.getElementById('context-menu-hide');
+      let currentEventIdForContextMenu = null;
+
+      const toastContainer = document.getElementById('toast-container'); // Get the toast container
+
+      let events = [];
+      let lastFocusedElement = null;
+
+      // Dark Mode Toggle Elements
+      const themeToggle = document.getElementById('theme-toggle');
+      const sunIcon = themeToggle.querySelector('.sun-icon');
+      const moonIcon = themeToggle.querySelector('.moon-icon');
+
+      // Function to set the theme
+      function setTheme(theme) {
+        if (theme === 'dark') {
+          document.body.classList.add('dark-mode');
+          sunIcon.classList.add('hidden');
+          moonIcon.classList.remove('hidden');
+          localStorage.setItem('theme', 'dark');
+        } else {
+          document.body.classList.remove('dark-mode');
+          sunIcon.classList.remove('hidden');
+          moonIcon.classList.add('hidden');
+          localStorage.setItem('theme', 'light');
+        }
+      }
+
+      // Initialize theme based on localStorage or system preference
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) {
+        setTheme(savedTheme);
+      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        setTheme('dark');
+      } else {
+        setTheme('light');
+      }
+
+      // Toggle theme on button click
+      themeToggle.addEventListener('click', () => {
+        if (document.body.classList.contains('dark-mode')) {
+          setTheme('light');
+        } else {
+          setTheme('dark');
+        }
+      });
+
+      if (splashScreen) { // Garante que o elemento existe antes de tentar manipulá-lo
+        setTimeout(() => {
+          splashScreen.style.opacity = '0'; // Inicia a transição para desaparecer
+          splashScreen.addEventListener('transitionend', () => {
+            splashScreen.remove(); // Remove o elemento do DOM após a transição
+          });
+        }, 3000); // A splash screen ficará visível por 3 segundos
+      }
+
+      // New: Presentation Mode Logic
+      let inactivityTimeout;
+      const INACTIVITY_TIME = 30000; // 30 segundos
+
+      function activatePresentationMode() {
+        document.body.classList.add('presentation-mode');
+      }
+
+      function deactivatePresentationMode() {
+        document.body.classList.remove('presentation-mode');
+      }
+
+      function resetInactivityTimer() {
+        clearTimeout(inactivityTimeout);
+        deactivatePresentationMode();
+        inactivityTimeout = setTimeout(activatePresentationMode, INACTIVITY_TIME);
+      }
+
+      // Add event listeners to detect activity
+      document.addEventListener('mousemove', resetInactivityTimer);
+      document.addEventListener('keydown', resetInactivityTimer);
+      document.addEventListener('scroll', resetInactivityTimer);
+
+      // Start the timer when the page loads
+      resetInactivityTimer();
+
+
+      // Socket.IO setup
+      const socket = io(API_BASE);
+
+      socket.on('connect', () => {
+        console.log('Conectado ao servidor WebSocket:', socket.id);
+      });
+
+      socket.on('disconnect', () => {
+        console.log('Desconectado do servidor WebSocket');
+      });
+
+      socket.on('eventsUpdated', updatedEvents => {
+        events = updatedEvents;
+        renderEvents();
+        if (modalHistoryOverlay.classList.contains('flex')) {
+          renderHistoryTable(historySearchInput.value);
+        }
+      });
+
+      socket.on('eventCreated', newEvent => {
+        if (!events.some(ev => ev.id === newEvent.id)) {
+          events.push(newEvent);
+          renderEvents();
+          if (modalHistoryOverlay.classList.contains('flex')) {
+            renderHistoryTable(historySearchInput.value);
+          }
+        }
+      });
+
+      socket.on('eventUpdated', updatedEvent => {
+        const index = events.findIndex(ev => ev.id === updatedEvent.id);
+        if (index > -1) {
+          events[index] = updatedEvent;
+          renderEvents();
+          if (modalHistoryOverlay.classList.contains('flex')) {
+            renderHistoryTable(historySearchInput.value);
+          }
+        }
+      });
+
+      socket.on('eventDeleted', ({
+        id
+      }) => {
+        events = events.filter(ev => ev.id !== id);
+        renderEvents();
+        if (modalHistoryOverlay.classList.contains('flex')) {
+          renderHistoryTable(historySearchInput.value);
+        }
+      });
+
+      // MODIFICADO: Listener para o evento 'showToast' do WebSocket agora espera um objeto
+      socket.on('showToast', ({ message, type = 'info' }) => {
+        showToast(message, type);
+      });
+
+      // Focus trap for accessibility
+      let focusableElementsArray = [];
+      let focusTrapContainer = null;
+
+      function trapFocus(container) {
+        focusTrapContainer = container;
+        const focusableSelectors = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+        const elements = container.querySelectorAll(focusableSelectors);
+        focusableElementsArray = Array.prototype.slice.call(elements);
+        if (focusableElementsArray.length === 0) return;
+        focusableElementsArray[0].focus();
+        container.addEventListener('keydown', handleFocusTrap);
+      }
+
+      function releaseFocusTrap() {
+        if (focusTrapContainer) {
+          focusTrapContainer.removeEventListener('keydown', handleFocusTrap);
+          focusTrapContainer = null;
+          focusableElementsArray = [];
+        }
+      }
+
+      function handleFocusTrap(e) {
+        if (e.key !== 'Tab') return;
+        const firstEl = focusableElementsArray[0];
+        const lastEl = focusableElementsArray[focusableElementsArray.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === firstEl) {
+            e.preventDefault();
+            lastEl.focus();
+          }
+        } else {
+          if (document.activeElement === lastEl) {
+            e.preventDefault();
+            firstEl.focus();
+          }
+        }
+      }
+
+      // Modal functions
+      function openModal() {
+        lastFocusedElement = document.activeElement;
+        modalOverlay.classList.remove('hidden');
+        modalOverlay.classList.add('flex');
+        document.body.classList.add('modal-open'); // Adicionado: Adiciona a classe para desabilitar FABs
+        inputTitle.value = '';
+        inputDescription.value = '';
+        const now = new Date();
+        now.setSeconds(0, 0);
+        inputStart.value = now.toISOString().slice(0, 16);
+        inputTitle.focus();
+        trapFocus(modalOverlay);
+      }
+
+      function closeModal() {
+        modalOverlay.classList.add('hidden');
+        modalOverlay.classList.remove('flex');
+        document.body.classList.remove('modal-open'); // Adicionado: Remove a classe para reabilitar FABs
+        if (lastFocusedElement && lastFocusedElement.focus) {
+          lastFocusedElement.focus();
+        }
+        releaseFocusTrap();
+      }
+
+      function openHistoryModal() {
+        lastFocusedElement = document.activeElement;
+        modalHistoryOverlay.classList.remove('hidden');
+        modalHistoryOverlay.classList.add('flex');
+        document.body.classList.add('modal-open'); // Adicionado: Adiciona a classe para desabilitar FABs
+        historySearchInput.value = '';
+        renderHistoryTable();
+        trapFocus(modalHistoryOverlay);
+      }
+
+      function closeHistoryModal() {
+        modalHistoryOverlay.classList.add('hidden');
+        modalHistoryOverlay.classList.remove('flex');
+        document.body.classList.remove('modal-open'); // Adicionado: Remove a classe para reabilitar FABs
+        if (lastFocusedElement && lastFocusedElement.focus) {
+          lastFocusedElement.focus();
+        }
+        releaseFocusTrap();
+      }
+
+      // Event handlers
+      fabAdd.addEventListener('click', openModal);
+      btnCancel.addEventListener('click', closeModal);
+
+      modalOverlay.addEventListener('click', e => {
+        if (e.target === modalOverlay) closeModal();
+      });
+
+      fabHistory.addEventListener('click', openHistoryModal);
+      btnCloseHistory.addEventListener('click', closeHistoryModal);
+
+      modalHistoryOverlay.addEventListener('click', e => {
+        if (e.target === modalHistoryOverlay) closeHistoryModal();
+      });
+
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+          if (modalOverlay.classList.contains('flex')) {
+            e.preventDefault();
+            closeModal();
+          } else if (modalHistoryOverlay.classList.contains('flex')) {
+            e.preventDefault();
+            closeHistoryModal();
+          }
+        }
+      });
+
+      // Close context menu when clicking outside
+      document.addEventListener('click', () => {
+        contextMenu.classList.add('hidden');
+      });
+
+      // Date and time formatting
+      function formatDateTime(dateStr) {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        if (isNaN(d)) return '';
+        return d.toLocaleString('pt-BR', {
+          dateStyle: 'short',
+          timeStyle: 'short'
+        });
+      }
+
+      // MODIFICADO: Inclui data (dd/mm) e hora no formato curto
+      function formatDateTimeShort(dateStr) {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        if (isNaN(d)) return '';
+        return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' +
+          d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      }
+
+      function getDurationString(startISO, endISO) {
+        const start = new Date(startISO);
+        const end = new Date(endISO);
+        if (isNaN(start) || isNaN(end)) return '';
+        let diffMs = end - start;
+        if (diffMs <= 0) return '0m';
+        const totalMins = Math.floor(diffMs / 60000);
+        const h = Math.floor(totalMins / 60);
+        const m = totalMins % 60;
+        return (h ? h + 'h ' : '') + (m ? m + 'm' : '');
+      }
+
+      // Event functions
+      async function loadInitialEvents() {
+        try {
+          const resp = await fetch(API_BASE + '/events');
+          if (!resp.ok) throw new Error('Falha ao carregar eventos');
+          const allEvts = await resp.json();
+          events = allEvts;
+          renderEvents();
+          checkAndHideResolvedEvents(); // Chama a verificação após carregar os eventos
+        } catch (e) {
+          alert('Falha ao carregar eventos do servidor.');
+          console.error(e);
+        }
+      }
+
+      function createEventCard(event) {
+        const card = document.createElement('article');
+        card.className = `event-card rounded-lg shadow-md p-6 flex flex-col gap-2 relative border-l-8 ${event.status === 'ocorrendo' ? 'card-border-ocorrendo bg-red-50' : 'card-border-resolvido bg-green-50'} ${document.body.classList.contains('dark-mode') ? 'bg-gray-800' : 'bg-white'}`;
+        card.style.opacity = event.isHidden ? '0.5' : '1';
+        card.tabIndex = 0;
+        card.setAttribute('draggable', 'true');
+        card.dataset.id = event.id;
+
+        const header = document.createElement('div');
+        header.className = 'flex justify-between items-center';
+
+        const titleEl = document.createElement('h2');
+        titleEl.className = 'text-xl font-bold text-gray-800 flex-1';
+        titleEl.textContent = event.title;
+
+        const hideBtn = document.createElement('button');
+        hideBtn.className =
+          'absolute top-3 right-3 bg-transparent border-none text-gray-400 hover:text-indigo-600 cursor-pointer text-xl';
+        hideBtn.innerHTML = '<span class="material-icons">visibility_off</span>';
+        hideBtn.addEventListener('click', () => updateEventVisibility(event.id, true));
+
+        header.appendChild(titleEl);
+        header.appendChild(hideBtn);
+
+        if (event.description && event.description.trim() !== '') {
+          const descEl = document.createElement('p');
+          descEl.className = 'text-gray-600 text-sm';
+          descEl.textContent = event.description;
+          card.appendChild(header);
+          card.appendChild(descEl);
+        } else {
+          card.appendChild(header);
+        }
+
+        const timesContainer = document.createElement('div');
+        timesContainer.className = 'flex justify-between items-center text-sm';
+
+        const timeStartEl = document.createElement('div');
+        timeStartEl.className = 'text-gray-500';
+        timeStartEl.textContent = 'Início: ' + formatDateTimeShort(event.start); // Usa o formato dd/mm hh:mm
+        timesContainer.appendChild(timeStartEl);
+
+        if (event.status === 'resolvido' && event.end) {
+          const timeEndEl = document.createElement('div');
+          timeEndEl.className = 'text-gray-500';
+          timeEndEl.textContent = 'Fim: ' + formatDateTimeShort(event.end);
+          timesContainer.appendChild(timeEndEl);
+
+          const durationEl = document.createElement('div');
+          durationEl.className = 'text-gray-500 font-semibold';
+          durationEl.textContent = 'Duração: ' + getDurationString(event.start, event.end);
+          timesContainer.appendChild(durationEl);
+        }
+
+        card.appendChild(timesContainer);
+
+        const statusEl = document.createElement('div');
+        statusEl.className = `status-badge-${event.status} px-3 py-1 rounded-full text-sm font-semibold mt-2 w-max`;
+        statusEl.textContent = event.status;
+        card.appendChild(statusEl);
+
+        if (event.status === 'ocorrendo') {
+          const toggleBtn = document.createElement('button');
+          toggleBtn.className =
+            'bg-transparent border-none text-gray-600 font-semibold text-sm px-3 py-1 rounded-md hover:bg-green-100 hover:text-green-800 mt-2';
+          toggleBtn.textContent = 'Marcar como Resolvido';
+          toggleBtn.addEventListener('click', () => markAsResolved(event.id));
+          card.appendChild(toggleBtn);
+        }
+
+        // Initialize VanillaTilt
+        VanillaTilt.init(card, {
+          max: 15,
+          speed: 400,
+          glare: true,
+          "max-glare": 0.2,
+          scale: 1.03,
+          perspective: 1000,
+          transition: true,
+        });
+
+        addDragAndDropHandlers(card);
+
+        return card;
+      }
+
+      function renderEvents() {
+        eventList.innerHTML = '';
+        const visibleEvents = events.filter(ev => !ev.isHidden);
+
+        if (visibleEvents.length === 0) {
+          const emptyMsg = document.createElement('p');
+          emptyMsg.className = 'text-gray-500 text-center col-span-full';
+          emptyMsg.textContent = 'Nenhum evento ativo ou registrado.';
+          eventList.appendChild(emptyMsg);
+          return;
+        }
+
+        visibleEvents.forEach(ev => {
+          const card = createEventCard(ev);
+          eventList.appendChild(card);
+        });
+      }
+
+      // Drag and Drop functions
+      let dragSrcEl = null;
+
+      function addDragAndDropHandlers(card) {
+        card.addEventListener('dragstart', handleDragStart);
+        card.addEventListener('dragover', handleDragOver);
+        card.addEventListener('dragenter', handleDragEnter);
+        card.addEventListener('dragleave', handleDragLeave);
+        card.addEventListener('drop', handleDrop);
+        card.addEventListener('dragend', handleDragEnd);
+      }
+
+      function handleDragStart(e) {
+        dragSrcEl = this;
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', this.dataset.id);
+        this.style.opacity = '0.5';
+      }
+
+      function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        return false;
+      }
+
+      function handleDragEnter(e) {
+        this.classList.add('bg-gray-100');
+      }
+
+      function handleDragLeave(e) {
+        this.classList.remove('bg-gray-100');
+      }
+
+      async function handleDrop(e) {
+        e.stopPropagation();
+        if (dragSrcEl !== this) {
+          const draggedId = e.dataTransfer.getData('text/plain');
+          const draggedIndex = events.findIndex(ev => ev.id === draggedId);
+          const dropId = this.dataset.id;
+          const droppedIndex = events.findIndex(ev => ev.id === dropId);
+
+          if (draggedIndex === -1 || droppedIndex === -1) return false;
+
+          const draggedEvent = events.splice(draggedIndex, 1)[0];
+          events.splice(droppedIndex, 0, draggedEvent);
+          renderEvents();
+        }
+        return false;
+      }
+
+      function handleDragEnd(e) {
+        this.style.opacity = '1';
+        document.querySelectorAll('.event-card').forEach(card => {
+          card.classList.remove('bg-gray-100');
+        });
+      }
+
+      // API functions
+      async function updateEventVisibility(id, isHidden) {
+        try {
+          const response = await fetch(API_BASE + '/events/' + id, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              isHidden: isHidden
+            }),
+          });
+          if (!response.ok) throw new Error('Erro ao atualizar visibilidade do evento');
+        } catch (e) {
+          alert('Erro ao atualizar visibilidade do evento.');
+          console.error(e);
+        }
+      }
+
+      // MODIFICADO: Adiciona `end` ao marcar como resolvido
+      async function markAsResolved(id) {
+        try {
+          const response = await fetch(API_BASE + '/events/' + id, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              status: 'resolvido',
+              end: new Date().toISOString() // Adiciona a data/hora de resolução
+            }),
+          });
+          if (!response.ok) throw new Error('Erro ao atualizar evento');
+        } catch (e) {
+          alert('Erro ao marcar evento como resolvido.');
+          console.error(e);
+        }
+      }
+
+      // NOVO: Função para verificar e ocultar eventos resolvidos após 24 horas
+      function checkAndHideResolvedEvents() {
+        const now = new Date();
+        events.forEach(event => {
+          if (event.status === 'resolvido' && event.end && !event.isHidden) {
+            const endDate = new Date(event.end);
+            const diffHours = (now - endDate) / (1000 * 60 * 60); // Diferença em horas
+            if (diffHours >= 24) {
+              updateEventVisibility(event.id, true);
+            }
+          }
+        });
+      }
+
+      // NOVO: Chama a função de verificação periodicamente (a cada hora)
+      setInterval(checkAndHideResolvedEvents, 1000 * 60 * 60); // A cada 1 hora
+
+      async function createEvent(eventData) {
+        try {
+          const response = await fetch(API_BASE + '/events', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(eventData),
+          });
+          if (!response.ok) {
+            const json = await response.json();
+            throw new Error(json.error || 'Erro ao criar evento');
+          }
+        } catch (e) {
+          alert('Erro ao adicionar evento: ' + e.message);
+          console.error(e);
+        }
+      }
+
+      // Form submission
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+
+        const title = inputTitle.value.trim();
+        const description = inputDescription.value.trim();
+        const startVal = inputStart.value;
+
+        if (!title) {
+          alert('Por favor, insira o título do evento.');
+          inputTitle.focus();
+          return;
+        }
+        if (!startVal) {
+          alert('Por favor, insira a data/hora de início.');
+          inputStart.focus();
+          return;
+        }
+
+        const startDate = new Date(startVal);
+        if (isNaN(startDate.getTime())) {
+          alert('Data/hora de início inválida.');
+          inputStart.focus();
+          return;
+        }
+
+        await createEvent({
+          title,
+          description,
+          start: startVal
+        });
+        closeModal();
+      });
+
+      // History table functions
+      // MODIFICADO: Inclui pesquisa por data e status
+      function renderHistoryTable(filter = '') {
+        historyTableBody.innerHTML = '';
+        if (events.length === 0) {
+          const tr = document.createElement('tr');
+          const td = document.createElement('td');
+          td.colSpan = 6;
+          td.className = 'py-4 text-center text-gray-500';
+          td.textContent = 'Nenhum evento registrado no histórico.';
+          tr.appendChild(td);
+          historyTableBody.appendChild(tr);
+          return;
+        }
+
+        const normalizedFilter = filter.toLowerCase().trim();
+        const sortedEvents = [...events].sort((a, b) => new Date(b.start) - new Date(a.start));
+
+        const filteredEvents = sortedEvents.filter(ev => {
+          const titleMatch = ev.title && ev.title.toLowerCase().includes(normalizedFilter);
+          const descriptionMatch = ev.description && ev.description.toLowerCase().includes(normalizedFilter);
+
+          // Pesquisa por data (formato dd/mm/yyyy ou dd/mm)
+          const startDateFormatted = formatDateTime(ev.start).toLowerCase();
+          const endDateFormatted = ev.end ? formatDateTime(ev.end).toLowerCase() : '';
+          const dateMatch = startDateFormatted.includes(normalizedFilter) || endDateFormatted.includes(normalizedFilter);
+
+          // Pesquisa por status
+          const statusMatch = ev.status && ev.status.toLowerCase().includes(normalizedFilter);
+
+          return titleMatch || descriptionMatch || dateMatch || statusMatch;
+        });
+
+        if (filteredEvents.length === 0) {
+          const tr = document.createElement('tr');
+          const td = document.createElement('td');
+          td.colSpan = 6;
+          td.className = 'py-4 text-center text-gray-500';
+          td.textContent = 'Nenhum evento corresponde à pesquisa.';
+          tr.appendChild(td);
+          historyTableBody.appendChild(tr);
+          return;
+        }
+
+        filteredEvents.forEach(ev => {
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-indigo-50';
+          tr.dataset.eventId = ev.id;
+
+          // Title
+          const tdTitle = document.createElement('td');
+          tdTitle.className = 'py-3 px-4';
+          tdTitle.textContent = ev.title;
+          tr.appendChild(tdTitle);
+
+          // Description
+          const tdDesc = document.createElement('td');
+          tdDesc.className = 'py-3 px-4';
+          let descText = ev.description || '';
+          if (descText.length > 60) descText = descText.slice(0, 57) + '...';
+          tdDesc.textContent = descText;
+          tr.appendChild(tdDesc);
+
+          // Start date
+          const tdStart = document.createElement('td');
+          tdStart.className = 'py-3 px-4';
+          tdStart.textContent = formatDateTime(ev.start);
+          tr.appendChild(tdStart);
+
+          // End date
+          const tdEnd = document.createElement('td');
+          tdEnd.className = 'py-3 px-4';
+          tdEnd.textContent = ev.end ? formatDateTime(ev.end) : '';
+          tr.appendChild(tdEnd);
+
+          // Duration
+          const tdDuration = document.createElement('td');
+          tdDuration.className = 'py-3 px-4';
+          tdDuration.textContent = ev.status === 'resolvido' && ev.end ? getDurationString(ev.start, ev.end) : '';
+          tr.appendChild(tdDuration);
+
+          // Status
+          const tdStatus = document.createElement('td');
+          tdStatus.className = `py-3 px-4 ${ev.status === 'ocorrendo' ? 'status-badge-ocorrendo' : 'status-badge-resolvido'}`;
+          tdStatus.textContent = ev.status;
+          tr.appendChild(tdStatus);
+
+          historyTableBody.appendChild(tr);
+        });
+
+        // Add context menu listeners
+        historyTableBody.querySelectorAll('tr').forEach(row => {
+          row.addEventListener('contextmenu', handleRowContextMenu);
+        });
+      }
+
+      // Context menu functions
+      function handleRowContextMenu(e) {
+        e.preventDefault();
+        const row = e.currentTarget;
+        currentEventIdForContextMenu = row.dataset.eventId;
+        const event = events.find(ev => ev.id === currentEventIdForContextMenu);
+
+        if (!event) return;
+
+        // Position the context menu
+        contextMenu.style.top = `${e.clientY}px`;
+        contextMenu.style.left = `${e.clientX}px`;
+        contextMenu.classList.remove('hidden');
+
+        // Update menu items based on event state
+        if (event.isHidden) {
+          contextMenuShow.classList.remove('hidden');
+          contextMenuHide.classList.add('hidden');
+        } else {
+          contextMenuShow.classList.add('hidden');
+          contextMenuHide.classList.remove('hidden');
+        }
+      }
+
+      contextMenuShow.addEventListener('click', () => {
+        if (currentEventIdForContextMenu) {
+          updateEventVisibility(currentEventIdForContextMenu, false);
+        }
+        contextMenu.classList.add('hidden');
+      });
+
+      contextMenuHide.addEventListener('click', () => {
+        if (currentEventIdForContextMenu) {
+          updateEventVisibility(currentEventIdForContextMenu, true);
+        }
+        contextMenu.classList.add('hidden');
+      });
+
+      // Search input handler
+      let searchTimeout = null;
+      historySearchInput.addEventListener('input', e => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+          renderHistoryTable(e.target.value);
+        }, 200);
+      });
+
+      // MODIFICADO: Função para exibir o toast com tipo e ícone
+      function showToast(message, type = 'info', duration = 3000) {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`; // Adiciona a classe de tipo
+        toast.setAttribute('role', 'alert');
+
+        let iconSvg = '';
+        let srOnlyText = '';
+
+        switch (type) {
+          case 'success':
+            iconSvg = `<svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
+            </svg>`;
+            srOnlyText = 'Check icon';
+            break;
+          case 'error':
+            iconSvg = `<svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 11.793a1 1 0 1 1-1.414 1.414L10 11.414l-2.293 2.293a1 1 0 0 1-1.414-1.414L8.586 10 6.293 7.707a1 1 0 0 1 1.414-1.414L10 8.586l2.293-2.293a1 1 0 0 1 1.414 1.414L11.414 10l2.293 2.293Z"/>
+            </svg>`;
+            srOnlyText = 'Error icon';
+            break;
+          case 'warning':
+            iconSvg = `<svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM10 15a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm1-4a1 1 0 0 1-2 0V6a1 1 0 0 1 2 0v5Z"/>
+            </svg>`;
+            srOnlyText = 'Warning icon';
+            break;
+          case 'info':
+          default:
+            iconSvg = `<svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM10 15a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm1-4a1 1 0 0 1-2 0V6a1 1 0 0 1 2 0v5Z"/>
+            </svg>`; // Using info icon from warning for simplicity, you can change this
+            srOnlyText = 'Info icon';
+            break;
+        }
+
+        toast.innerHTML = `
+            <div class="toast-icon-container">
+                ${iconSvg}
+                <span class="sr-only">${srOnlyText}</span>
+            </div>
+            <div class="toast-message">${message}</div>
+            <button type="button" class="toast-close-button" aria-label="Close">
+                <span class="sr-only">Close</span>
+                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                </svg>
+            </button>
+        `;
+        toastContainer.appendChild(toast);
+
+        // Forçar reflow para garantir a transição
+        void toast.offsetWidth;
+
+        toast.classList.add('show');
+
+        const closeButton = toast.querySelector('.toast-close-button');
+        let timeoutId = null;
+
+        const hideToast = () => {
+          toast.classList.remove('show');
+          toast.classList.add('hide');
+          toast.addEventListener('transitionend', () => {
+            toast.remove();
+          }, { once: true });
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+          }
+        };
+
+        closeButton.addEventListener('click', hideToast);
+
+        timeoutId = setTimeout(hideToast, duration);
+      }
+      // Initialize
+      loadInitialEvents();
+    });
+  </script>
+</body>
+
+</html>
