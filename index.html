@@ -10,7 +10,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.2/vanilla-tilt.min.js"></script>
 
   <!-- Favicon em SVG direto no link, cor definida para #9f7aea -->
- <link rel="icon" href="data:image/svg+xml;utf8,
+  <link rel="icon" href="data:image/svg+xml;utf8,
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%239f7aea'>
   <path d='M6 3a3 3 0 0 0-3 3v2.25a3 3 0 0 0 3 3h2.25a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3H6ZM15.75 3a3 3 0 0 0-3 3v2.25a3 3 0 0 0 3 3H18a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3h-2.25ZM6 12.75a3 3 0 0 0-3 3V18a3 3 0 0 0 3 3h2.25a3 3 0 0 0 3-3v-2.25a3 3 0 0 0-3-3H6ZM17.625 13.5a.75.75 0 0 0-1.5 0v2.625H13.5a.75.75 0 0 0 0 1.5h2.625v2.625a.75.75 0 0 0 1.5 0v-2.625h2.625a.75.75 0 0 0 0-1.5h-2.625V13.5Z' />
 </svg>">
@@ -450,18 +450,18 @@
 
   <!-- Custom Tailwind config -->
   <script>
-  tailwind.config = {
-    darkMode: 'class',
-    theme: {
-      extend: {
-        colors: {
-          'ocorrendo': '#ef4444',
-          'resolvido': '#10b981',
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'ocorrendo': '#ef4444',
+            'resolvido': '#10b981',
+          }
         }
       }
     }
-  }
-</script>
+  </script>
 </head>
 
 <body class="bg-gray-50 font-sans flex flex-col items-center py-6 px-4 min-h-screen relative">
@@ -527,13 +527,15 @@
       <h2 id="modal-title" class="text-2xl font-bold text-indigo-600 mb-6">Adicionar Novo Evento</h2>
       <form id="event-form" class="space-y-5" novalidate>
         <div>
-          <label for="title" class="block text-sm font-medium text-gray-600 dark:text-gray-200 mb-1">Título do Evento</label>
+          <label for="title" class="block text-sm font-medium text-gray-600 dark:text-gray-200 mb-1">Título do
+            Evento</label>
           <input type="text" id="title" name="title" required aria-required="true" placeholder="Ex: Rompimento de fibra"
             autocomplete="off"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
         </div>
         <div>
-          <label for="description" class="block text-sm font-medium text-gray-600 dark:text-gray-200 mb-1">Descrição</label>
+          <label for="description"
+            class="block text-sm font-medium text-gray-600 dark:text-gray-200 mb-1">Descrição</label>
           <textarea id="description" name="description" rows="3" placeholder="Ex: Previsão"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
         </div>
@@ -602,7 +604,8 @@
   <div id="context-menu"
     class="hidden fixed bg-white border border-gray-200 rounded-lg shadow-lg z-50 py-1 min-w-[200px]">
     <ul>
-      <li id="context-menu-show" class="px-4 py-2 hover:bg-gray-100 cursor-pointer hidden">Mostrar na tela principal</li>
+      <li id="context-menu-show" class="px-4 py-2 hover:bg-gray-100 cursor-pointer hidden">Mostrar na tela principal
+      </li>
       <li id="context-menu-hide" class="px-4 py-2 hover:bg-gray-100 cursor-pointer hidden">Ocultar</li>
       <li id="context-menu-resolve" class="px-4 py-2 hover:bg-gray-100 cursor-pointer hidden">Marcar como Resolvido</li>
       <li id="context-menu-edit" class="px-4 py-2 hover:bg-gray-100 cursor-pointer hidden">Editar</li>
@@ -833,7 +836,7 @@
         inputDescription.value = '';
         const now = new Date();
         now.setSeconds(0, 0);
-        inputStart.value = now.toISOString().slice(0, 16);
+        inputStart.value = getLocalDateTimeString(now);
 
         // Resetar o formulário para o modo de criação
         document.getElementById('modal-title').textContent = 'Adicionar Novo Evento';
@@ -956,21 +959,21 @@
           // Setup context menu based on event state
           contextMenu.style.top = `${e.clientY}px`;
           contextMenu.style.left = `${e.clientX}px`;
-          
+
           // Show/hide menu items appropriately
           contextMenu.querySelectorAll('li').forEach(li => li.classList.add('hidden'));
-          
+
           if (event.isHidden) {
             contextMenuShow.classList.remove('hidden');
           } else {
             contextMenuHide.classList.remove('hidden');
           }
-          
+
           if (event.status === 'ocorrendo') {
             contextMenuResolve.classList.remove('hidden');
             contextMenuEdit.classList.remove('hidden'); // Only show edit option for "ocorrendo" events
           }
-          
+
           contextMenu.classList.remove('hidden');
         }
       });
@@ -1005,6 +1008,15 @@
           dateStyle: 'short',
           timeStyle: 'short'
         });
+      }
+
+      function getLocalDateTimeString(date = new Date()) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
       }
 
       // MODIFICADO: Inclui data (dd/mm) e hora no formato curto
@@ -1065,7 +1077,7 @@
         titleEl.textContent = event.title;
 
         header.appendChild(titleEl);
-        
+
         if (event.description && event.description.trim() !== '') {
           const descEl = document.createElement('p');
           descEl.className = 'text-gray-600 text-sm';
@@ -1085,11 +1097,11 @@
         const formattedDateTime = startDate.toLocaleDateString('pt-BR', {
           day: '2-digit',
           month: '2-digit'
-        }) + ' ' + 
-        startDate.toLocaleTimeString('pt-BR', {
-          hour: '2-digit', 
-          minute: '2-digit'
-        });
+        }) + ' ' +
+          startDate.toLocaleTimeString('pt-BR', {
+            hour: '2-digit',
+            minute: '2-digit'
+          });
         timeStartEl.textContent = 'Início: ' + formattedDateTime;
         timesContainer.appendChild(timeStartEl);
 
@@ -1463,17 +1475,17 @@
         // Position the context menu
         contextMenu.style.top = `${e.clientY}px`;
         contextMenu.style.left = `${e.clientX}px`;
-        
+
         // Hide all menu items first
         contextMenu.querySelectorAll('li').forEach(li => li.classList.add('hidden'));
-        
+
         // Only show show/hide options for history rows
         if (event.isHidden) {
           contextMenuShow.classList.remove('hidden');
         } else {
           contextMenuHide.classList.remove('hidden');
         }
-        
+
         contextMenu.classList.remove('hidden');
       }
 
