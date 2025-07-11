@@ -10,7 +10,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.2/vanilla-tilt.min.js"></script>
 
   <!-- Favicon em SVG direto no link, cor definida para #9f7aea -->
-  <link rel="icon" href="data:image/svg+xml;utf8,
+ <link rel="icon" href="data:image/svg+xml;utf8,
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%239f7aea'>
   <path d='M6 3a3 3 0 0 0-3 3v2.25a3 3 0 0 0 3 3h2.25a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3H6ZM15.75 3a3 3 0 0 0-3 3v2.25a3 3 0 0 0 3 3H18a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3h-2.25ZM6 12.75a3 3 0 0 0-3 3V18a3 3 0 0 0 3 3h2.25a3 3 0 0 0 3-3v-2.25a3 3 0 0 0-3-3H6ZM17.625 13.5a.75.75 0 0 0-1.5 0v2.625H13.5a.75.75 0 0 0 0 1.5h2.625v2.625a.75.75 0 0 0 1.5 0v-2.625h2.625a.75.75 0 0 0 0-1.5h-2.625V13.5Z' />
 </svg>">
@@ -437,34 +437,38 @@
 
     /* Estilos para desabilitar os FABs quando um modal está aberto */
     body.modal-open #fab-container {
-      opacity: 0.5; /* Reduz a opacidade para dar a impressão de desabilitado */
-      pointer-events: none; /* Impede qualquer interação com o mouse */
-      transition: opacity 0.3s ease-in-out; /* Adiciona uma transição suave */
-      z-index: 30; /* NOVO: Define um z-index menor que o do modal (40) */
+      opacity: 0.5;
+      /* Reduz a opacidade para dar a impressão de desabilitado */
+      pointer-events: none;
+      /* Impede qualquer interação com o mouse */
+      transition: opacity 0.3s ease-in-out;
+      /* Adiciona uma transição suave */
+      z-index: 30;
+      /* NOVO: Define um z-index menor que o do modal (40) */
     }
-    
   </style>
 
   <!-- Custom Tailwind config -->
   <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            'ocorrendo': '#ef4444',
-            'resolvido': '#10b981',
-          }
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        colors: {
+          'ocorrendo': '#ef4444',
+          'resolvido': '#10b981',
         }
       }
     }
-  </script>
+  }
+</script>
 </head>
 
 <body class="bg-gray-50 font-sans flex flex-col items-center py-6 px-4 min-h-screen relative">
 
   <!-- Splash Screen -->
   <div id="splash-screen"
-    class="fixed inset-0 bg-indigo-600 flex flex-col items-center justify-center z-50 opacity-100 transition-opacity duration-1000 ease-out">
+    class="fixed inset-0 bg-indigo-600 flex flex-col items-center justify-center z-[999] opacity-100 transition-opacity duration-1000 ease-out">
     <div class="flex">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
         class="size-12 text-white animate-pulse">
@@ -490,7 +494,7 @@
 
     <!-- Dark Mode Toggle Button -->
     <button id="theme-toggle"
-      class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-full shadow-lg flex items-center justify-center text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+      class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
       aria-label="Alternar tema claro/escuro" title="Alternar tema claro/escuro">
       <span class="material-icons sun-icon">light_mode</span>
       <span class="material-icons moon-icon hidden">dark_mode</span>
@@ -523,18 +527,18 @@
       <h2 id="modal-title" class="text-2xl font-bold text-indigo-600 mb-6">Adicionar Novo Evento</h2>
       <form id="event-form" class="space-y-5" novalidate>
         <div>
-          <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Título do Evento</label>
+          <label for="title" class="block text-sm font-medium text-gray-600 dark:text-gray-200 mb-1">Título do Evento</label>
           <input type="text" id="title" name="title" required aria-required="true" placeholder="Ex: Rompimento de fibra"
             autocomplete="off"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
         </div>
         <div>
-          <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+          <label for="description" class="block text-sm font-medium text-gray-600 dark:text-gray-200 mb-1">Descrição</label>
           <textarea id="description" name="description" rows="3" placeholder="Ex: Previsão"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
         </div>
         <div>
-          <label for="start-time" class="block text-sm font-medium text-gray-700 mb-1">Início</label>
+          <label for="start-time" class="block text-sm font-medium text-gray-600 dark:text-gray-200 mb-1">Início</label>
           <input type="datetime-local" id="start-time" name="start-time" required aria-required="true"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
         </div>
@@ -594,12 +598,14 @@
     </div>
   </div>
 
-  <!-- Context Menu -->
+  <!-- Context Menu (used for both main view and history) -->
   <div id="context-menu"
     class="hidden fixed bg-white border border-gray-200 rounded-lg shadow-lg z-50 py-1 min-w-[200px]">
     <ul>
-      <li id="context-menu-show" class="px-4 py-2 hover:bg-gray-100 cursor-pointer">Mostrar na tela principal</li>
-      <li id="context-menu-hide" class="px-4 py-2 hover:bg-gray-100 cursor-pointer">Ocultar</li>
+      <li id="context-menu-show" class="px-4 py-2 hover:bg-gray-100 cursor-pointer hidden">Mostrar na tela principal</li>
+      <li id="context-menu-hide" class="px-4 py-2 hover:bg-gray-100 cursor-pointer hidden">Ocultar</li>
+      <li id="context-menu-resolve" class="px-4 py-2 hover:bg-gray-100 cursor-pointer hidden">Marcar como Resolvido</li>
+      <li id="context-menu-edit" class="px-4 py-2 hover:bg-gray-100 cursor-pointer hidden">Editar</li>
     </ul>
   </div>
 
@@ -608,7 +614,7 @@
 
   <script src="https://cdn.socket.io/4.6.1/socket.io.min.js" crossorigin="anonymous"></script>
   <script>
-    const API_BASE = "http://192.168.54.120:3000";
+    const API_BASE = "http://localhost:3000";
 
     document.addEventListener("DOMContentLoaded", () => {
       const splashScreen = document.getElementById('splash-screen');
@@ -634,10 +640,16 @@
       const contextMenuHide = document.getElementById('context-menu-hide');
       let currentEventIdForContextMenu = null;
 
+      // Novas referências para o menu de contexto de edição
+      const editContextMenu = document.getElementById('edit-context-menu');
+      const contextMenuEdit = document.getElementById('context-menu-edit');
+      let currentEventIdForEdit = null; // Variável para armazenar o ID do evento a ser editado
+
       const toastContainer = document.getElementById('toast-container'); // Get the toast container
 
       let events = [];
       let lastFocusedElement = null;
+      let originalStartDate = null; // Store original date when editing
 
       // Dark Mode Toggle Elements
       const themeToggle = document.getElementById('theme-toggle');
@@ -765,7 +777,10 @@
       });
 
       // MODIFICADO: Listener para o evento 'showToast' do WebSocket agora espera um objeto
-      socket.on('showToast', ({ message, type = 'info' }) => {
+      socket.on('showToast', ({
+        message,
+        type = 'info'
+      }) => {
         showToast(message, type);
       });
 
@@ -819,9 +834,52 @@
         const now = new Date();
         now.setSeconds(0, 0);
         inputStart.value = now.toISOString().slice(0, 16);
+
+        // Resetar o formulário para o modo de criação
+        document.getElementById('modal-title').textContent = 'Adicionar Novo Evento';
+        document.querySelector('#event-form button[type="submit"]').textContent = 'Adicionar';
+        delete form.dataset.editingEventId; // Remover o ID do evento em edição
+
         inputTitle.focus();
         trapFocus(modalOverlay);
       }
+
+      // Função para abrir o modal de edição
+      function openEditModal(eventData) {
+        if (eventData.status !== 'ocorrendo') {
+          alert('Somente eventos com status "Ocorrendo" podem ser editados');
+          return;
+        }
+        lastFocusedElement = document.activeElement;
+        modalOverlay.classList.remove('hidden');
+        modalOverlay.classList.add('flex');
+        document.body.classList.add('modal-open');
+
+        // Preencher o formulário com os dados do evento
+        inputTitle.value = eventData.title;
+        inputDescription.value = eventData.description;
+        // Parse ISO date and format correctly for datetime-local input
+        const startDate = new Date(eventData.start);
+        const year = startDate.getFullYear();
+        const month = String(startDate.getMonth() + 1).padStart(2, '0');
+        const day = String(startDate.getDate()).padStart(2, '0');
+        const hours = String(startDate.getHours()).padStart(2, '0');
+        const minutes = String(startDate.getMinutes()).padStart(2, '0');
+        inputStart.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+        // Store original date
+        originalStartDate = eventData.start;
+
+        // Mudar o título do modal e o texto do botão de submit
+        document.getElementById('modal-title').textContent = 'Editar Evento';
+        document.querySelector('#event-form button[type="submit"]').textContent = 'Salvar Alterações';
+
+        // Armazenar o ID do evento para saber qual atualizar
+        form.dataset.editingEventId = eventData.id;
+
+        inputTitle.focus();
+        trapFocus(modalOverlay);
+      }
+
 
       function closeModal() {
         modalOverlay.classList.add('hidden');
@@ -885,6 +943,59 @@
         contextMenu.classList.add('hidden');
       });
 
+      // Adicionar listener para clique direito nos cards de evento
+      eventList.addEventListener('contextmenu', e => {
+        const card = e.target.closest('.event-card');
+        if (card) {
+          e.preventDefault();
+          currentEventIdForEdit = card.dataset.id;
+          const event = events.find(ev => ev.id === currentEventIdForEdit);
+
+          if (!event) return;
+
+          // Setup context menu based on event state
+          contextMenu.style.top = `${e.clientY}px`;
+          contextMenu.style.left = `${e.clientX}px`;
+          
+          // Show/hide menu items appropriately
+          contextMenu.querySelectorAll('li').forEach(li => li.classList.add('hidden'));
+          
+          if (event.isHidden) {
+            contextMenuShow.classList.remove('hidden');
+          } else {
+            contextMenuHide.classList.remove('hidden');
+          }
+          
+          if (event.status === 'ocorrendo') {
+            contextMenuResolve.classList.remove('hidden');
+            contextMenuEdit.classList.remove('hidden'); // Only show edit option for "ocorrendo" events
+          }
+          
+          contextMenu.classList.remove('hidden');
+        }
+      });
+
+      // Add resolve button handler
+      const contextMenuResolve = document.getElementById('context-menu-resolve');
+      contextMenuResolve.addEventListener('click', () => {
+        if (currentEventIdForEdit) {
+          markAsResolved(currentEventIdForEdit);
+        }
+        contextMenu.classList.add('hidden');
+      });
+
+      // Listener para o item "Editar" no menu de contexto
+      contextMenuEdit.addEventListener('click', () => {
+        if (currentEventIdForEdit) {
+          const eventToEdit = events.find(ev => ev.id === currentEventIdForEdit);
+          if (eventToEdit && eventToEdit.status === 'ocorrendo') {
+            openEditModal(eventToEdit);
+          }
+        }
+        contextMenu.classList.add('hidden');
+      });
+
+
       // Date and time formatting
       function formatDateTime(dateStr) {
         if (!dateStr) return '';
@@ -901,8 +1012,14 @@
         if (!dateStr) return '';
         const d = new Date(dateStr);
         if (isNaN(d)) return '';
-        return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' +
-          d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        return d.toLocaleDateString('pt-BR', {
+          day: '2-digit',
+          month: '2-digit'
+        }) + ' ' +
+          d.toLocaleTimeString('pt-BR', {
+            hour: '2-digit',
+            minute: '2-digit'
+          });
       }
 
       function getDurationString(startISO, endISO) {
@@ -947,15 +1064,8 @@
         titleEl.className = 'text-xl font-bold text-gray-800 flex-1';
         titleEl.textContent = event.title;
 
-        const hideBtn = document.createElement('button');
-        hideBtn.className =
-          'absolute top-3 right-3 bg-transparent border-none text-gray-400 hover:text-indigo-600 cursor-pointer text-xl';
-        hideBtn.innerHTML = '<span class="material-icons">visibility_off</span>';
-        hideBtn.addEventListener('click', () => updateEventVisibility(event.id, true));
-
         header.appendChild(titleEl);
-        header.appendChild(hideBtn);
-
+        
         if (event.description && event.description.trim() !== '') {
           const descEl = document.createElement('p');
           descEl.className = 'text-gray-600 text-sm';
@@ -971,7 +1081,16 @@
 
         const timeStartEl = document.createElement('div');
         timeStartEl.className = 'text-gray-500';
-        timeStartEl.textContent = 'Início: ' + formatDateTimeShort(event.start); // Usa o formato dd/mm hh:mm
+        const startDate = new Date(event.start);
+        const formattedDateTime = startDate.toLocaleDateString('pt-BR', {
+          day: '2-digit',
+          month: '2-digit'
+        }) + ' ' + 
+        startDate.toLocaleTimeString('pt-BR', {
+          hour: '2-digit', 
+          minute: '2-digit'
+        });
+        timeStartEl.textContent = 'Início: ' + formattedDateTime;
         timesContainer.appendChild(timeStartEl);
 
         if (event.status === 'resolvido' && event.end) {
@@ -992,15 +1111,6 @@
         statusEl.className = `status-badge-${event.status} px-3 py-1 rounded-full text-sm font-semibold mt-2 w-max`;
         statusEl.textContent = event.status;
         card.appendChild(statusEl);
-
-        if (event.status === 'ocorrendo') {
-          const toggleBtn = document.createElement('button');
-          toggleBtn.className =
-            'bg-transparent border-none text-gray-600 font-semibold text-sm px-3 py-1 rounded-md hover:bg-green-100 hover:text-green-800 mt-2';
-          toggleBtn.textContent = 'Marcar como Resolvido';
-          toggleBtn.addEventListener('click', () => markAsResolved(event.id));
-          card.appendChild(toggleBtn);
-        }
 
         // Initialize VanillaTilt
         VanillaTilt.init(card, {
@@ -1168,6 +1278,26 @@
         }
       }
 
+      // Adicionar a função updateEvent
+      async function updateEvent(id, eventData) {
+        try {
+          const response = await fetch(API_BASE + '/events/' + id, {
+            method: 'PATCH', // Usar PATCH para atualização parcial
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(eventData),
+          });
+          if (!response.ok) {
+            const json = await response.json();
+            throw new Error(json.error || 'Erro ao atualizar evento');
+          }
+        } catch (e) {
+          alert('Erro ao atualizar evento: ' + e.message);
+          console.error(e);
+        }
+      }
+
       // Form submission
       form.addEventListener('submit', async e => {
         e.preventDefault();
@@ -1175,31 +1305,54 @@
         const title = inputTitle.value.trim();
         const description = inputDescription.value.trim();
         const startVal = inputStart.value;
+        const editingEventId = form.dataset.editingEventId; // Obter o ID do evento em edição
 
         if (!title) {
           alert('Por favor, insira o título do evento.');
           inputTitle.focus();
           return;
         }
-        if (!startVal) {
-          alert('Por favor, insira a data/hora de início.');
+
+        // Use original date if input is empty (when editing)
+        let startDate;
+        if (startVal) {
+          const [datePart, timePart] = startVal.split('T');
+          const [year, month, day] = datePart.split('-').map(Number);
+          const [hours, minutes] = timePart.split(':').map(Number);
+          startDate = new Date(year, month - 1, day, hours, minutes);
+        } else {
+          startDate = new Date(originalStartDate);
+        }
+        if (isNaN(startDate.getTime())) {
+          alert('Data/hora de início inválida.');
           inputStart.focus();
           return;
         }
-
-        const startDate = new Date(startVal);
         if (isNaN(startDate.getTime())) {
           alert('Data/hora de início inválida.');
           inputStart.focus();
           return;
         }
 
-        await createEvent({
+        const eventData = {
           title,
           description,
-          start: startVal
-        });
+          start: startDate.toISOString()
+        };
+
+        if (editingEventId) {
+          // Se estiver editando, chame a função de atualização
+          await updateEvent(editingEventId, eventData);
+        } else {
+          // Caso contrário, crie um novo evento
+          await createEvent(eventData);
+        }
+
         closeModal();
+        // Resetar o formulário para o modo de criação após fechar o modal
+        document.getElementById('modal-title').textContent = 'Adicionar Novo Evento';
+        document.querySelector('#event-form button[type="submit"]').textContent = 'Adicionar';
+        delete form.dataset.editingEventId; // Remover o ID do evento em edição
       });
 
       // History table functions
@@ -1310,28 +1463,30 @@
         // Position the context menu
         contextMenu.style.top = `${e.clientY}px`;
         contextMenu.style.left = `${e.clientX}px`;
-        contextMenu.classList.remove('hidden');
-
-        // Update menu items based on event state
+        
+        // Hide all menu items first
+        contextMenu.querySelectorAll('li').forEach(li => li.classList.add('hidden'));
+        
+        // Only show show/hide options for history rows
         if (event.isHidden) {
           contextMenuShow.classList.remove('hidden');
-          contextMenuHide.classList.add('hidden');
         } else {
-          contextMenuShow.classList.add('hidden');
           contextMenuHide.classList.remove('hidden');
         }
+        
+        contextMenu.classList.remove('hidden');
       }
 
       contextMenuShow.addEventListener('click', () => {
-        if (currentEventIdForContextMenu) {
-          updateEventVisibility(currentEventIdForContextMenu, false);
+        if (currentEventIdForEdit) {
+          updateEventVisibility(currentEventIdForEdit, false);
         }
         contextMenu.classList.add('hidden');
       });
 
       contextMenuHide.addEventListener('click', () => {
-        if (currentEventIdForContextMenu) {
-          updateEventVisibility(currentEventIdForContextMenu, true);
+        if (currentEventIdForEdit) {
+          updateEventVisibility(currentEventIdForEdit, true);
         }
         contextMenu.classList.add('hidden');
       });
@@ -1410,7 +1565,9 @@
           toast.classList.add('hide');
           toast.addEventListener('transitionend', () => {
             toast.remove();
-          }, { once: true });
+          }, {
+            once: true
+          });
           if (timeoutId) {
             clearTimeout(timeoutId);
           }

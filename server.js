@@ -16,10 +16,14 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const admin = require('firebase-admin');
-const { v4: uuidv4 } = require('uuid');
+const {
+  v4: uuidv4
+} = require('uuid');
 const path = require('path');
 const http = require('http');
-const { Server } = require('socket.io');
+const {
+  Server
+} = require('socket.io');
 
 // Inicializar Firebase Admin com credenciais da conta de serviço
 const serviceAccount = require(path.join(__dirname, 'firebase-service-account.json'));
@@ -76,7 +80,9 @@ app.get('/events', async (req, res) => {
     res.json(events);
   } catch (error) {
     console.error('GET /events error:', error);
-    res.status(500).json({ error: 'Erro ao acessar banco de dados' });
+    res.status(500).json({
+      error: 'Erro ao acessar banco de dados'
+    });
   }
 });
 
@@ -106,9 +112,15 @@ function broadcastEventsUpdate() {
 
 // POST - Criar novo evento
 app.post('/events', async (req, res) => {
-  const { title, description, start } = req.body;
+  const {
+    title,
+    description,
+    start
+  } = req.body;
   if (!title || !start) {
-    return res.status(400).json({ error: 'Título e início são obrigatórios.' });
+    return res.status(400).json({
+      error: 'Título e início são obrigatórios.'
+    });
   }
   try {
     const startTimestamp = admin.firestore.Timestamp.fromDate(new Date(start));
@@ -137,20 +149,36 @@ app.post('/events', async (req, res) => {
     io.emit('eventCreated', eventCreated);
     broadcastEventsUpdate(); // Call the broadcast function
     // MODIFICADO: Emitir objeto com message e type
-    io.emit('showToast', { message: `Novo evento "${eventCreated.title}" adicionado!`, type: 'success' });
+    io.emit('showToast', {
+      message: `Novo evento "${eventCreated.title}" adicionado!`,
+      type: 'success'
+    });
     res.status(201).json(eventCreated);
   } catch (error) {
     console.error('POST /events error:', error);
     // MODIFICADO: Emitir toast de erro
-    io.emit('showToast', { message: 'Erro ao adicionar evento.', type: 'error' });
-    res.status(500).json({ error: 'Erro ao adicionar evento' });
+    io.emit('showToast', {
+      message: 'Erro ao adicionar evento.',
+      type: 'error'
+    });
+    res.status(500).json({
+      error: 'Erro ao adicionar evento'
+    });
   }
 });
 
 // PATCH - Atualizar status E/OU isHidden
 app.patch('/events/:id', async (req, res) => {
-  const { id } = req.params;
-  const { status, isHidden } = req.body; // Now can receive both status and isHidden
+  const {
+    id
+  } = req.params;
+  const {
+    status,
+    isHidden,
+    title,
+    description,
+    start
+  } = req.body; // Adicionado title, description, start
 
   const updateData = {};
   let toastMessage = ''; // Mensagem para o toast
@@ -159,7 +187,9 @@ app.patch('/events/:id', async (req, res) => {
   // Validate and add status to updateData if provided
   if (status !== undefined) {
     if (!['ocorrendo', 'resolvido'].includes(status)) { // Only these two are valid for 'status'
-      return res.status(400).json({ error: 'Status inválido.' });
+      return res.status(400).json({
+        error: 'Status inválido.'
+      });
     }
     updateData.status = status;
     if (status === 'resolvido') {
@@ -176,22 +206,56 @@ app.patch('/events/:id', async (req, res) => {
   // Validate and add isHidden to updateData if provided
   if (isHidden !== undefined) {
     if (typeof isHidden !== 'boolean') {
-      return res.status(400).json({ error: 'isHidden deve ser um booleano.' });
+      return res.status(400).json({
+        error: 'isHidden deve ser um booleano.'
+      });
     }
     updateData.isHidden = isHidden;
-    toastMessage = `Evento ${isHidden ? 'ocultado' : 'mostrado'} com sucesso!`;
-    toastType = 'info'; // Tipo informação
+    // Se a mensagem de toast já foi definida por status, não sobrescrever,
+    // a menos que seja uma atualização de visibilidade pura.
+    if (!toastMessage) {
+      toastMessage = `Evento ${isHidden ? 'ocultado' : 'mostrado'} com sucesso!`;
+      toastType = 'info';
+    }
   }
 
+  // Adicionar title, description, start se fornecidos
+  if (title !== undefined) {
+    updateData.title = title;
+    toastMessage = `Evento "${title}" atualizado!`; // Mensagem de atualização para edição
+    toastType = 'success';
+  }
+  if (description !== undefined) {
+    updateData.description = description;
+    // Se o título já definiu a mensagem, não sobrescrever
+    if (!toastMessage && title === undefined) { // Só define se não houver mensagem de título
+      toastMessage = `Evento atualizado!`;
+      toastType = 'success';
+    }
+  }
+  if (start !== undefined) {
+    updateData.start = admin.firestore.Timestamp.fromDate(new Date(start));
+    // Se o título já definiu a mensagem, não sobrescrever
+    if (!toastMessage && title === undefined) { // Só define se não houver mensagem de título
+      toastMessage = `Evento atualizado!`;
+      toastType = 'success';
+    }
+  }
+
+
   if (Object.keys(updateData).length === 0) {
-    return res.status(400).json({ error: 'Nenhum campo válido para atualização fornecido.' });
+    return res.status(400).json({
+      error: 'Nenhum campo válido para atualização fornecido.'
+    });
   }
 
   try {
     const docRef = eventsCollection.doc(id);
     const docSnap = await docRef.get();
     if (!docSnap.exists) {
-      return res.status(404).json({ error: 'Evento não encontrado.' });
+      return res.status(404).json({
+        error: 'Evento não encontrado.'
+      });
     }
 
     await docRef.update(updateData);
@@ -213,43 +277,70 @@ app.patch('/events/:id', async (req, res) => {
     broadcastEventsUpdate(); // Call the broadcast function
     if (toastMessage) {
       // MODIFICADO: Emitir objeto com message e type
-      io.emit('showToast', { message: toastMessage, type: toastType });
+      io.emit('showToast', {
+        message: toastMessage,
+        type: toastType
+      });
     }
-    res.json({ message: 'Evento atualizado com sucesso.', event: eventUpdated });
+    res.json({
+      message: 'Evento atualizado com sucesso.',
+      event: eventUpdated
+    });
   } catch (error) {
     console.error('PATCH /events/:id error:', error);
     // MODIFICADO: Emitir toast de erro
-    io.emit('showToast', { message: 'Erro ao atualizar evento.', type: 'error' });
-    res.status(500).json({ error: 'Erro ao atualizar evento' });
+    io.emit('showToast', {
+      message: 'Erro ao atualizar evento.',
+      type: 'error'
+    });
+    res.status(500).json({
+      error: 'Erro ao atualizar evento'
+    });
   }
 });
 
 // DELETE - Apagar evento
 app.delete('/events/:id', async (req, res) => {
-  const { id } = req.params;
+  const {
+    id
+  } = req.params;
   try {
     const docRef = eventsCollection.doc(id);
     const docSnap = await docRef.get();
     if (!docSnap.exists) {
-      return res.status(404).json({ error: 'Evento não encontrado.' });
+      return res.status(404).json({
+        error: 'Evento não encontrado.'
+      });
     }
     await docRef.delete();
 
-    io.emit('eventDeleted', { id });
+    io.emit('eventDeleted', {
+      id
+    });
     broadcastEventsUpdate(); // Call the broadcast function
     // MODIFICADO: Emitir objeto com message e type
-    io.emit('showToast', { message: `Evento "${docSnap.data().title}" excluído!`, type: 'info' });
-    res.json({ message: 'Evento excluído com sucesso.' });
+    io.emit('showToast', {
+      message: `Evento "${docSnap.data().title}" excluído!`,
+      type: 'info'
+    });
+    res.json({
+      message: 'Evento excluído com sucesso.'
+    });
   } catch (error) {
     console.error('DELETE /events/:id error:', error);
     // MODIFICADO: Emitir toast de erro
-    io.emit('showToast', { message: 'Erro ao excluir evento.', type: 'error' });
-    res.status(500).json({ error: 'Erro ao excluir evento' });
+    io.emit('showToast', {
+      message: 'Erro ao excluir evento.',
+      type: 'error'
+    });
+    res.status(500).json({
+      error: 'Erro ao excluir evento'
+    });
   }
 });
 
 // Start server com WebSocket integrado
 server.listen(PORT, () => {
-  console.log(`Servidor executando em http://192.168.54.120:${PORT}`);
+  console.log(`Servidor executando em http://localhost:${PORT}`);
   console.log(`WebSocket ativo e esperando conexões...`);
 });
